@@ -1,0 +1,10 @@
+ingress:
+  enabled: true
+  host: test.example.dev
+
+cassandraHost: cassandra
+redisHost: redis
+
+persistence:
+ storageClass: rook
+ size: 1Gi

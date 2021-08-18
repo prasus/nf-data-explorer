@@ -1,0 +1,12 @@
+apiVersion: v2
+appVersion: 1.0.0
+description: Helm chart for Netflix Data Explorer
+keywords:
+- netflix data explorer
+maintainers:
+- name: Prasad Krishnan
+  mail: prasadzone@gmail.com
+name: nfdataexplorer
+sources:
+- https://github.com/Netflix/nf-data-explorer 
+version: 1.0.0

@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nfdataexplorer.fullname" . }}
+  labels:
+    {{- include "nfdataexplorer.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "nfdataexplorer.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "nfdataexplorer.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "prasadzone/nf-data-explorer"
+          imagePullPolicy: IfNotPresent 
+          args:
+            - yarn
+            - start
+          env:
+            - name: DATA_EXPLORER_CONFIG_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DATA_EXPLORER_CONFIG_NAME
+                  name: {{ include "nfdataexplorer.fullname" . }}
+            - name: CASSANDRA_HOST
+              value: {{ .Values.cassandraHost }}
+            - name: REDIS_HOST
+              value: {{ .Values.redisHost }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /apps/nf-data-explorer/data
+              name: {{ include "nfdataexplorer.fullname" . }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+         - name: {{ include "nfdataexplorer.fullname" . }} 
+           persistentVolumeClaim:
+             claimName: {{ include "nfdataexplorer.fullname" . }}
